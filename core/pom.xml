@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2017 Tirasa
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>net.tirasa.syncope.spring-boot</groupId>
+    <artifactId>syncope-spring-boot</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Apache Syncope on Spring Boot: Core</name>
+  <description>Apache Syncope on Spring Boot: Core</description>
+  
+  <groupId>net.tirasa.syncope.spring-boot</groupId>
+  <artifactId>syncope-spring-boot-core</artifactId>
+  <packaging>jar</packaging>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
+      <version>${cxf.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-rest-cxf</artifactId>
+      <version>${syncope.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-workflow-java</artifactId>
+      <version>${syncope.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <version>${syncope.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <finalName>${project.artifactId}</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring.boot.version}</version>
+        <configuration>
+          <mainClass>net.tirasa.syncope.springboot.SyncopeCoreApplication</mainClass>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>keystore</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>keystore</include>
+        </includes>
+      </testResource>
+    </testResources>
+  </build>
+  
+  <profiles>
+    <profile>
+      <id>embedded</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean spring-boot:run</defaultGoal>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+              <execution>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>src/test/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>${spring.boot.version}</version>
+            <configuration>
+              <mainClass>net.tirasa.syncope.springboot.SyncopeCoreApplication</mainClass>
+              <arguments>
+                <argument>--server.port=9080</argument>
+              </arguments>
+              <jvmArguments>
+                -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+              </jvmArguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>all</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-workflow-activiti</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-provisioning</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        
+        <!-- Use default Swagger UI coming with CXF support instead of syncope-ext-swagger-ui,
+        which does not seem to work OOTB with Spring Boot -->
+        <dependency>
+          <groupId>org.webjars</groupId>
+          <artifactId>swagger-ui</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.swagger</groupId>
+          <artifactId>swagger-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.dataformat</groupId>
+          <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.dataformat</groupId>
+          <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.datatype</groupId>
+          <artifactId>jackson-datatype-joda</artifactId>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <plugins>
+          <!-- Adds Activiti test content -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}/classes</dir>
+                  <includes>
+                    <include>domains/MasterContent.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/classes</outputDir>
+                  <stylesheet>${basedir}/src/test/resources/addActivitiToContent.xsl</stylesheet>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                </transformationSet>
+              </transformationSets>
+            </configuration>
+          </plugin>                    
+        </plugins>
+        
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>workflow.properties</exclude>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources/all</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+  </profiles>
+</project>
