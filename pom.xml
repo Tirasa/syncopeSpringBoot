@@ -59,5 +59,6 @@
   <modules>
     <module>core</module>
     <module>console</module>
+    <module>enduser</module>
   </modules>
 </project>
