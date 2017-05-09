@@ -11,7 +11,7 @@ After `cd core/`:
 
 ## console
 
-This requires to configure an existing Syncope core coordinates under `console/src/test/resources/console.properties`.
+This requires to configure an existing Syncope Core coordinates under `console/src/test/resources/console.properties`.
 
 After `cd console/`:
 
@@ -20,7 +20,7 @@ After `cd console/`:
 
 ## enduser
 
-This requires to configure an existing Syncope core coordinates under `enduser/src/test/resources/enduser.properties`.
+This requires to configure an existing Syncope Core coordinates under `enduser/src/test/resources/enduser.properties`.
 
 After `cd enduser/`:
 
